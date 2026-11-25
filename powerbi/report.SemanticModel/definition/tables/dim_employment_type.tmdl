@@ -1,0 +1,44 @@
+table dim_employment_type
+	lineageTag: 2b6295dd-28fe-4aca-8d0e-685f5f333754
+
+	column employment_type
+		dataType: string
+		lineageTag: 99a6feff-27db-486c-9cb0-c157d0c1b286
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: e29e15da-fa01-48e2-8fb1-90b5e0ea199e
+		summarizeBy: sum
+		sourceColumn: employment_type_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_employment_type = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: dim_employment_type
+				// Sort employment_type by employment_type_sort, then hide the sort column.
+				// =============================================================================
+				let
+				    Source = #table(
+				        type table [employment_type = text, employment_type_sort = Int64.Type],
+				        {
+				            {"Full-time", 1},
+				            {"Part-time", 2},
+				            {"Contract", 3},
+				            {"Intern", 4}
+				        }
+				    )
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

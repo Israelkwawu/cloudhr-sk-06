@@ -1,0 +1,114 @@
+relationship AutoDetected_34ed74c2-3769-4da1-955c-6aa8379faf49
+	fromColumn: dim_department.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_f80d6583-8df4-46b5-a8e1-46bb41dbc00e
+	fromColumn: dim_employee.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_200ff03b-c2e2-4f3e-be9e-9da07cc67972
+	fromColumn: salary_data_errors.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_b5ce761e-224f-4cae-aed4-ea0a550664eb
+	isActive: false
+	fromColumn: fact_employee_monthly.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_6258f281-8953-4257-82c7-9ebc211a8bdd
+	isActive: false
+	fromColumn: fact_leave.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_934f757f-1cc9-4a72-9133-ddc86e00150d
+	fromColumn: fact_performance.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_a851fc26-98bc-45a1-80e7-c1e7f88589bd
+	fromColumn: security_mapping.org_id
+	toColumn: dim_organisation.org_id
+
+relationship AutoDetected_b979a795-1ef1-4975-9d74-df4363eebe00
+	isActive: false
+	fromColumn: dim_employee.department_id
+	toColumn: dim_department.department_id
+
+relationship AutoDetected_3dff8615-1fa9-47d6-ba19-ce9945a10a65
+	fromColumn: fact_employee_monthly.department_id
+	toColumn: dim_department.department_id
+
+relationship AutoDetected_9d42ce2a-feb0-42e9-9a27-8cd5244592a9
+	fromColumn: fact_leave.department_id
+	toColumn: dim_department.department_id
+
+relationship AutoDetected_01ff92ab-2e13-40f7-8850-f7b5a6829b0d
+	isActive: false
+	fromColumn: fact_performance.department_id
+	toColumn: dim_department.department_id
+
+relationship AutoDetected_eb5299cc-e3b7-4f0a-afc4-50977d2d6090
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: salary_data_errors.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship AutoDetected_d09ef0d4-d7cd-40f8-bd00-355c8c5871a4
+	isActive: false
+	fromColumn: fact_employee_monthly.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship AutoDetected_7915343b-8cf4-453c-be6c-43c8f1bff3eb
+	isActive: false
+	fromColumn: fact_leave.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship AutoDetected_e9fa70b9-33f2-4819-b1f2-2064ef1ebf67
+	isActive: false
+	fromColumn: fact_performance.employee_id
+	toColumn: dim_employee.employee_id
+
+relationship AutoDetected_461482d8-c6b1-4daa-a58b-f6d8c3334854
+	fromColumn: dim_employee.job_level
+	toColumn: dim_job_level.job_level
+
+relationship AutoDetected_7b7eca90-c6db-4e43-b081-3abf36e9c44b
+	fromColumn: fact_employee_monthly.job_level
+	toColumn: dim_job_level.job_level
+
+relationship AutoDetected_cbc8d5eb-9c91-4508-afd9-43fdd7f3f0a8
+	fromColumn: dim_employee.employment_type
+	toColumn: dim_employment_type.employment_type
+
+relationship AutoDetected_4616fddb-6a7a-4d16-a8da-28ec9c2c3075
+	fromColumn: fact_employee_monthly.employment_type
+	toColumn: dim_employment_type.employment_type
+
+relationship AutoDetected_77875035-b47e-4982-81c9-0bdf13310fbb
+	fromColumn: fact_leave.employment_type
+	toColumn: dim_employment_type.employment_type
+
+relationship AutoDetected_55261097-50cf-4be6-b659-5023c4ff4e65
+	fromColumn: fact_performance.employment_type
+	toColumn: dim_employment_type.employment_type
+
+relationship AutoDetected_3dc14b92-95ac-4842-be70-9342a27f59c6
+	fromColumn: leave_entitlement.employment_type
+	toColumn: dim_employment_type.employment_type
+
+relationship AutoDetected_c10b0eb5-c163-4b27-b33f-0bb5156975d0
+	fromColumn: fact_leave.leave_type
+	toColumn: dim_leave_type.leave_type
+
+relationship AutoDetected_9ef45e40-5dc6-4779-b2a6-ea716726f389
+	fromColumn: leave_entitlement.leave_type
+	toColumn: dim_leave_type.leave_type
+
+relationship AutoDetected_616d2b4c-fe28-4c5d-b11d-4c95d8f75a94
+	fromColumn: fact_employee_monthly.DateKey
+	toColumn: dim_date.DateKey
+
+relationship AutoDetected_9dd7f89e-fec3-4454-8183-8445a7950d48
+	fromColumn: fact_leave.DateKey
+	toColumn: dim_date.DateKey
+

@@ -1,0 +1,17 @@
+leave_type,employment_type,annual_entitlement_days
+Annual,Full-time,20
+Annual,Part-time,12
+Annual,Contract,0
+Annual,Intern,10
+Sick,Full-time,10
+Sick,Part-time,6
+Sick,Contract,0
+Sick,Intern,5
+Parental,Full-time,60
+Parental,Part-time,30
+Parental,Contract,0
+Parental,Intern,0
+Other,Full-time,5
+Other,Part-time,3
+Other,Contract,0
+Other,Intern,0

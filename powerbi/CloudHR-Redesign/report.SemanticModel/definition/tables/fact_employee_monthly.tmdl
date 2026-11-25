@@ -1,0 +1,179 @@
+table fact_employee_monthly
+	lineageTag: b3cd7fdb-3324-4ef3-95b2-c9067242c1ff
+
+	column snapshot_month
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 90a7cc5b-61f3-4143-b41b-f40656540fe4
+		summarizeBy: none
+		sourceColumn: snapshot_month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column employee_id
+		dataType: int64
+		formatString: 0
+		lineageTag: dc84fbbd-93a8-43ca-a0e2-886d6dd81e15
+		summarizeBy: sum
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6aba4bab-2477-4231-bd04-eda04bf938ac
+		summarizeBy: none
+		sourceColumn: org_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_active
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5a12643a-fb46-4447-85d0-4a76e611e891
+		summarizeBy: none
+		sourceColumn: is_active
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_level
+		dataType: string
+		lineageTag: dc4321e3-5a5e-401e-9e48-7beb91a358b0
+		summarizeBy: none
+		sourceColumn: job_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column department_id
+		dataType: int64
+		formatString: 0
+		lineageTag: da7ab403-840f-4d62-bc7b-7470e97fd1cd
+		summarizeBy: sum
+		sourceColumn: department_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		lineageTag: 7f440c0f-80f6-4644-ade2-c7b009e83b00
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column hire_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8bb22f76-3863-4add-9691-451a058d7aca
+		summarizeBy: none
+		sourceColumn: hire_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column termination_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c2f468ba-cb38-40a8-9382-e81dc8f6f1b5
+		summarizeBy: none
+		sourceColumn: termination_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column termination_reason
+		dataType: string
+		lineageTag: 910fb129-699b-414d-b1ab-7cdc530c4ffc
+		summarizeBy: none
+		sourceColumn: termination_reason
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshot_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d4707296-dec6-492a-b284-e8c1456c4a00
+		summarizeBy: none
+		sourceColumn: snapshot_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: aee25f32-1d85-43fe-92d7-956c026e707c
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_data_error
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 1b9b0443-dd4d-4035-a7aa-2ad365d9aa2c
+		summarizeBy: none
+		sourceColumn: is_data_error
+
+		annotation SummarizationSetBy = Automatic
+
+	column base_salary_usd
+		dataType: double
+		lineageTag: 1a865791-e948-4a57-83e0-0c2c2ec5be0e
+		summarizeBy: sum
+		sourceColumn: base_salary_usd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_employee_monthly = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: fact_employee_monthly
+				// Zero and negative salaries become null here. The error query above still
+				// sees the original values because it reads stg_employee_monthly directly.
+				// =============================================================================
+				let
+				    Source = stg_employee_monthly,
+				    CleanSalary = Table.AddColumn(
+				        Source,
+				        "base_salary_clean",
+				        each if [base_salary_usd] <> null and [base_salary_usd] > 0 then [base_salary_usd] else null,
+				        type number
+				    ),
+				    Dropped = Table.RemoveColumns(CleanSalary, {"base_salary_usd"}),
+				    Renamed = Table.RenameColumns(Dropped, {{"base_salary_clean", "base_salary_usd"}}),
+				    Typed = Table.TransformColumnTypes(
+				        Renamed,
+				        {
+				            {"snapshot_month", type date},
+				            {"snapshot_date", type date},
+				            {"DateKey", Int64.Type},
+				            {"employee_id", Int64.Type},
+				            {"org_id", Int64.Type},
+				            {"department_id", Int64.Type},
+				            {"job_level", type text},
+				            {"employment_type", type text},
+				            {"is_active", type logical},
+				            {"base_salary_usd", type number},
+				            {"hire_date", type date},
+				            {"termination_date", type date},
+				            {"termination_reason", type text},
+				            {"is_data_error", type logical}
+				        }
+				    )
+				in
+				    Typed
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

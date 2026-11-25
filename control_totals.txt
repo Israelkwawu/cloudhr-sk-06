@@ -1,0 +1,41 @@
+CloudHR control totals
+Seed: 20261119
+Snapshot window: 2024-01-01 through 2025-12-31 (month-end grain)
+Headcount is active employees at month end. It excludes the 12 hire/termination data errors.
+Average salary excludes zero and negative salary rows.
+
+Row counts
+  organisations                       200
+  departments                         995
+  employees (business keys)        31,851
+  employee SCD versions            35,455
+  current SCD versions             31,851
+  employee_monthly_snapshots      628,428
+  leave_records                    67,438
+  performance_reviews              51,575
+  security_mapping                      4
+  leave_entitlement                    16
+  zero or negative salaries            65
+  hire_date after termination          12
+
+RLS test organisations (active headcount and avg salary at month end)
+  org_id  name                    month     headcount   avg_salary   new_hires  terminations  voluntary  leave_days
+  1       Acme Labs               2024-12         77    88,533.83          10             8          5           0
+  1       Acme Labs               2025-12         84    91,107.63          13             6          1         708
+  Acme Labs 2025 turnover check: BOP 77  EOP 84  terminations 6  rate 7.45
+  2       BrightPath Logistics    2024-12         90    79,911.05          10            14          9           0
+  2       BrightPath Logistics    2025-12         86    82,695.26           7            11         10         900
+  BrightPath Logistics 2025 turnover check: BOP 90  EOP 86  terminations 11  rate 12.50
+  3       Cedar Health            2024-12         71    82,936.12          11            14          7           0
+  3       Cedar Health            2025-12         66    85,166.33           3             8          4         629
+  Cedar Health 2025 turnover check: BOP 71  EOP 66  terminations 8  rate 11.68
+
+Security mapping (lab users)
+  ada.mensah@acme-labs.example             org 1 Acme Labs               HR_ADMIN
+  ben.owusu@brightpath.example             org 2 BrightPath Logistics    HR_VIEWER
+  cara.boateng@cedarhealth.example         org 3 Cedar Health            HR_VIEWER
+  dana.asante@acme-labs.example            org 1 Acme Labs               HR_VIEWER
+  nora.nobody@example.com                  not in the mapping; must see no rows
+
+Band check: active headcount at 2025-12-31 falls inside employee_count_band
+  all 200 organisations match their target headcount

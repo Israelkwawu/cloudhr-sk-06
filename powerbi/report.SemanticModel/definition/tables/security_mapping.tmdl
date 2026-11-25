@@ -1,0 +1,81 @@
+table security_mapping
+	isHidden
+	lineageTag: 981af92a-e7e4-4a0f-84ce-d72edf0dba1c
+
+	column user_email
+		dataType: string
+		isHidden
+		lineageTag: b56e1eeb-8f81-4bcc-b52b-a3b5cbfb0ae1
+		summarizeBy: none
+		sourceColumn: user_email
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e166812a-1ca6-479b-8d55-5157ef6c0671
+		summarizeBy: none
+		sourceColumn: org_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column access_level
+		dataType: string
+		isHidden
+		lineageTag: cc2d27c3-d36f-4d75-955d-61c2ea9a97d8
+		summarizeBy: none
+		sourceColumn: access_level
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition security_mapping = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: security_mapping
+				// Lab copy is hard-coded. Do not relate this table to dim_organisation.
+				// Enable load, hide it, and do not put a visual on it.
+				//
+				// Production replacement, once the warehouse is the source of truth:
+				//   let
+				//       Source = Database,
+				//       Table = Source{[Schema = "hr", Item = "security_mapping"]}[Data],
+				//       Typed = Table.TransformColumnTypes(
+				//           Table,
+				//           {
+				//               {"user_email", type text},
+				//               {"org_id", Int64.Type},
+				//               {"access_level", type text}
+				//           }
+				//       )
+				//   in
+				//       Typed
+				// user_email must equal the Entra ID user principal name, one row per person.
+				// =============================================================================
+				let
+				    Source = #table(
+				        type table [user_email = text, org_id = Int64.Type, access_level = text],
+				        {
+				            {"ada.mensah@acme-labs.example", 1, "HR_ADMIN"},
+				            {"ben.owusu@brightpath.example", 2, "HR_VIEWER"},
+				            {"cara.boateng@cedarhealth.example", 3, "HR_VIEWER"},
+				            {"dana.asante@acme-labs.example", 1, "HR_VIEWER"}
+				        }
+				    )
+				in
+				    Source
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,575 @@
+// CloudHR measure library
+// Create a blank table named _Measures (Enter data, one unused column, hide that column)
+// and create each measure there. The name before "=" is the measure name.
+//
+// dim_date must be marked as a date table on dim_date[Date] before the time-intelligence
+// measures return numbers.
+//
+// Headcount, salary, tenure, and band width are read at a single month-end.
+// They must not be summed across months. Leave days are additive.
+
+// -----------------------------------------------------------------------------
+// Measure: Active Headcount
+// Format: #,##0
+// Display folder: Headcount
+// Business definition: people employed at the latest loaded month-end inside
+// the selected period. This is the headline workforce number.
+// If the selected period runs past the last refresh, the measure stays on the
+// last snapshot that has been loaded instead of returning blank.
+// -----------------------------------------------------------------------------
+Active Headcount =
+VAR PeriodEnd =
+    MAX ( dim_date[Date] )
+VAR LastLoaded =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] <= PeriodEnd
+    )
+RETURN
+    CALCULATE (
+        COUNTROWS ( fact_employee_monthly ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = LastLoaded
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Headcount EOP
+// Format: #,##0
+// Display folder: Headcount
+// Business definition: people employed on the last calendar day of the selected
+// period, snapped to that month-end. Blank when that month has not been loaded.
+// Use this, not a sum of monthly counts, as the closing balance.
+// -----------------------------------------------------------------------------
+Headcount EOP =
+VAR ClosingDate =
+    EOMONTH ( LASTDATE ( dim_date[Date] ), 0 )
+RETURN
+    CALCULATE (
+        COUNTROWS ( fact_employee_monthly ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = ClosingDate
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Headcount BOP
+// Format: #,##0
+// Display folder: Headcount
+// Business definition: opening balance, the month-end before the selected
+// period starts. FIRSTDATE of a year is 1 January, which has no snapshot, so
+// the measure steps back one month with EOMONTH. 2024 has no December 2023
+// snapshot, and in that case the measure uses January 2024.
+// -----------------------------------------------------------------------------
+Headcount BOP =
+VAR PeriodStart =
+    FIRSTDATE ( dim_date[Date] )
+VAR OpeningDate =
+    EOMONTH ( PeriodStart, -1 )
+VAR FirstInPeriod =
+    EOMONTH ( PeriodStart, 0 )
+VAR OpeningExists =
+    CALCULATE (
+        COUNTROWS ( fact_employee_monthly ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[snapshot_date] = OpeningDate
+    )
+VAR AsOf =
+    IF ( OpeningExists > 0, OpeningDate, FirstInPeriod )
+RETURN
+    CALCULATE (
+        COUNTROWS ( fact_employee_monthly ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = AsOf
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Avg Headcount
+// Format: #,##0.0
+// Display folder: Headcount
+// (BOP + EOP) / 2. Denominator for the turnover rates.
+// -----------------------------------------------------------------------------
+Avg Headcount =
+DIVIDE ( [Headcount BOP] + [Headcount EOP], 2 )
+
+// -----------------------------------------------------------------------------
+// Measure: New Hires
+// Format: #,##0
+// Display folder: Movement
+// People whose hire date falls in the selected period. Counted once, on the
+// snapshot for the hire month, so a later transfer does not count them again
+// and a department filter attributes them to the department they joined.
+// -----------------------------------------------------------------------------
+New Hires =
+VAR PeriodStart =
+    FIRSTDATE ( dim_date[Date] )
+VAR PeriodEnd =
+    LASTDATE ( dim_date[Date] )
+RETURN
+    CALCULATE (
+        DISTINCTCOUNT ( fact_employee_monthly[employee_id] ),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[hire_date] >= PeriodStart,
+        fact_employee_monthly[hire_date] <= PeriodEnd,
+        fact_employee_monthly[snapshot_date]
+            = EOMONTH ( fact_employee_monthly[hire_date], 0 )
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Terminations
+// Format: #,##0
+// Display folder: Movement
+// People whose termination date falls in the selected period. The snapshot for
+// that month is kept even though is_active is false at month-end, which is
+// why this measure does not filter is_active.
+// -----------------------------------------------------------------------------
+Terminations =
+VAR PeriodStart =
+    FIRSTDATE ( dim_date[Date] )
+VAR PeriodEnd =
+    LASTDATE ( dim_date[Date] )
+RETURN
+    CALCULATE (
+        DISTINCTCOUNT ( fact_employee_monthly[employee_id] ),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[termination_date] >= PeriodStart,
+        fact_employee_monthly[termination_date] <= PeriodEnd,
+        fact_employee_monthly[snapshot_date]
+            = EOMONTH ( fact_employee_monthly[termination_date], 0 )
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Voluntary Terminations
+// Format: #,##0
+// Display folder: Movement
+// Resignation and Retirement. Performance, Redundancy, and End of Contract
+// stay in Terminations and out of this measure.
+// -----------------------------------------------------------------------------
+Voluntary Terminations =
+CALCULATE (
+    [Terminations],
+    fact_employee_monthly[termination_reason] IN { "Resignation", "Retirement" }
+)
+
+// -----------------------------------------------------------------------------
+// Measure: Turnover Rate
+// Format: 0.00
+// Display folder: Movement
+// (Terminations / average headcount) x 100, in percent points.
+// 7.45 means 7.45%, not 745%. Do not also set a percentage format.
+// Without a date filter, use the year of the latest available snapshot.
+// -----------------------------------------------------------------------------
+Turnover Rate =
+VAR LatestSnapshotDate =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date )
+    )
+VAR LatestYear =
+    YEAR ( LatestSnapshotDate )
+VAR UseLatestYear =
+    NOT ISFILTERED ( dim_date )
+        && NOT ISBLANK ( LatestSnapshotDate )
+RETURN
+    IF (
+        UseLatestYear,
+        CALCULATE (
+            DIVIDE ( [Terminations], [Avg Headcount] ) * 100,
+            TREATAS ( { LatestYear }, dim_date[Year] )
+        ),
+        DIVIDE ( [Terminations], [Avg Headcount] ) * 100
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Voluntary Turnover Rate
+// Format: 0.00
+// Display folder: Movement
+// Same denominator as Turnover Rate, voluntary separations only.
+// -----------------------------------------------------------------------------
+Voluntary Turnover Rate =
+VAR LatestSnapshotDate =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date )
+    )
+VAR LatestYear =
+    YEAR ( LatestSnapshotDate )
+VAR UseLatestYear =
+    NOT ISFILTERED ( dim_date )
+        && NOT ISBLANK ( LatestSnapshotDate )
+RETURN
+    IF (
+        UseLatestYear,
+        CALCULATE (
+            DIVIDE ( [Voluntary Terminations], [Avg Headcount] ) * 100,
+            TREATAS ( { LatestYear }, dim_date[Year] )
+        ),
+        DIVIDE ( [Voluntary Terminations], [Avg Headcount] ) * 100
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Avg Tenure (Years)
+// Format: 0.00
+// Display folder: Workforce
+// Mean tenure of people active at the period-end snapshot.
+// Data-error rows are excluded: their hire date is after their termination
+// date, so the tenure would be negative.
+// Without a date filter, use the latest available snapshot.
+// -----------------------------------------------------------------------------
+Avg Tenure (Years) =
+VAR LatestSnapshotDate =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date )
+    )
+VAR AsOf =
+    IF (
+        ISFILTERED ( dim_date ),
+        EOMONTH ( LASTDATE ( dim_date[Date] ), 0 ),
+        LatestSnapshotDate
+    )
+RETURN
+    CALCULATE (
+        AVERAGEX (
+            fact_employee_monthly,
+            DIVIDE (
+                DATEDIFF (
+                    fact_employee_monthly[hire_date],
+                    fact_employee_monthly[snapshot_date],
+                    DAY
+                ),
+                365.25
+            )
+        ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = AsOf
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Avg Base Salary
+// Format: #,##0.00
+// Display folder: Compensation
+// Mean base salary of people active at the period-end snapshot.
+// AVERAGEX plus the blank filter skips salaries that Power Query set to null
+// (source value was zero or negative). Do not AVERAGE the raw column across
+// months: that would mix twelve snapshots of the same person.
+// Without a date filter, use the latest available snapshot.
+// -----------------------------------------------------------------------------
+Avg Base Salary =
+VAR LatestSnapshotDate =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date )
+    )
+VAR AsOf =
+    IF (
+        ISFILTERED ( dim_date ),
+        EOMONTH ( LASTDATE ( dim_date[Date] ), 0 ),
+        LatestSnapshotDate
+    )
+RETURN
+    CALCULATE (
+        AVERAGEX (
+            FILTER (
+                fact_employee_monthly,
+                NOT ISBLANK ( fact_employee_monthly[base_salary_usd] )
+            ),
+            fact_employee_monthly[base_salary_usd]
+        ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = AsOf
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Compensation Band Width
+// Format: #,##0
+// Display folder: Compensation
+// Highest minus lowest positive base salary at the period-end snapshot,
+// inside the current department, level, and employment-type filters.
+// A wide band is a spread of pay. A narrow band is compression.
+// -----------------------------------------------------------------------------
+Compensation Band Width =
+VAR LatestSnapshotDate =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date )
+    )
+VAR AsOf =
+    IF (
+        ISFILTERED ( dim_date ),
+        EOMONTH ( LASTDATE ( dim_date[Date] ), 0 ),
+        LatestSnapshotDate
+    )
+VAR High =
+    CALCULATE (
+        MAX ( fact_employee_monthly[base_salary_usd] ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = AsOf
+    )
+VAR Low =
+    CALCULATE (
+        MIN ( fact_employee_monthly[base_salary_usd] ),
+        REMOVEFILTERS ( dim_date ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = AsOf
+    )
+RETURN
+    High - Low
+
+// -----------------------------------------------------------------------------
+// Measure: Headcount PY
+// Format: #,##0
+// Display folder: Headcount
+// Same definition as Active Headcount, shifted one year. Pair it with
+// Active Headcount on the trend line. Requires the marked date table.
+// -----------------------------------------------------------------------------
+Headcount PY =
+CALCULATE (
+    [Active Headcount],
+    SAMEPERIODLASTYEAR ( dim_date[Date] )
+)
+
+// -----------------------------------------------------------------------------
+// Measure: Headcount YoY Growth %
+// Format: 0.00
+// Display folder: Headcount
+// Percent-point change versus the same period last year.
+// Blank for 2024: the first snapshot year has no prior year of facts.
+// -----------------------------------------------------------------------------
+Headcount YoY Growth % =
+VAR LatestSnapshotDate =
+    CALCULATE (
+        MAX ( fact_employee_monthly[snapshot_date] ),
+        REMOVEFILTERS ( dim_date )
+    )
+VAR LatestYear =
+    YEAR ( LatestSnapshotDate )
+VAR UseLatestYear =
+    NOT ISFILTERED ( dim_date )
+        && NOT ISBLANK ( LatestSnapshotDate )
+VAR CurrentHeadcount =
+    IF (
+        UseLatestYear,
+        CALCULATE ( [Active Headcount], TREATAS ( { LatestYear }, dim_date[Year] ) ),
+        [Active Headcount]
+    )
+VAR PriorHeadcount =
+    IF (
+        UseLatestYear,
+        CALCULATE ( [Active Headcount], TREATAS ( { LatestYear - 1 }, dim_date[Year] ) ),
+        [Headcount PY]
+    )
+RETURN
+    DIVIDE ( CurrentHeadcount - PriorHeadcount, PriorHeadcount ) * 100
+
+// -----------------------------------------------------------------------------
+// Measure: Headcount YTD
+// Format: #,##0
+// Display folder: Headcount
+// Semi-additive year-to-date. DATESYTD widens the dates to 1 January through
+// the current period, then Active Headcount keeps only the last of those
+// month-ends. It does not add January's headcount to February's.
+// Calendar year, because the date table starts in January.
+// -----------------------------------------------------------------------------
+Headcount YTD =
+CALCULATE (
+    [Active Headcount],
+    DATESYTD ( dim_date[Date] )
+)
+
+// -----------------------------------------------------------------------------
+// Measure: Leave Days
+// Format: #,##0
+// Display folder: Leave
+// Sum of days_taken. Additive across time, department, and leave type.
+// -----------------------------------------------------------------------------
+Leave Days =
+SUM ( fact_leave[days_taken] )
+
+// -----------------------------------------------------------------------------
+// Measure: Leave Days 3M Avg
+// Format: #,##0.0
+// Display folder: Leave
+// Mean of Leave Days over the selected month and the two months before it.
+// Averaged by month, not by day, so weekends in the date table do not dilute it.
+// -----------------------------------------------------------------------------
+Leave Days 3M Avg =
+VAR AnchorMonth =
+    EOMONTH ( MAX ( dim_date[Date] ), 0 )
+RETURN
+    AVERAGEX (
+        GENERATESERIES ( -2, 0, 1 ),
+        VAR MonthEnd =
+            EOMONTH ( AnchorMonth, [Value] )
+        RETURN
+            CALCULATE (
+                [Leave Days],
+                REMOVEFILTERS ( dim_date ),
+                dim_date[Date] >= DATE ( YEAR ( MonthEnd ), MONTH ( MonthEnd ), 1 ),
+                dim_date[Date] <= MonthEnd
+            )
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: Leave Utilization %
+// Format: 0.00
+// Display folder: Leave
+// Days taken in the selected period divided by the prorated annual entitlement
+// of the people active at period end, times 100.
+// Entitlement depends on leave type and employment type. With no leave type in
+// context the measure uses Annual. Contractors have zero entitlement and add
+// nothing to the denominator.
+// The headcount base is one month-end, not every monthly snapshot. Iterating
+// every month would count the same person twelve times and overstate entitlement.
+// Parental entitlement is applied to the whole active population, so parental
+// utilization is low unless the audience filters to people who took it.
+// -----------------------------------------------------------------------------
+Leave Utilization % =
+VAR PeriodEnd =
+    LASTDATE ( dim_date[Date] )
+VAR MonthsInContext =
+    COUNTROWS ( SUMMARIZE ( dim_date, dim_date[Year], dim_date[Month Number] ) )
+VAR YearFraction =
+    DIVIDE ( MonthsInContext, 12 )
+VAR LeaveType =
+    SELECTEDVALUE ( dim_leave_type[leave_type], "Annual" )
+VAR AsOf =
+    EOMONTH ( PeriodEnd, 0 )
+VAR Entitled =
+    CALCULATE (
+        SUMX (
+            SUMMARIZE (
+                fact_employee_monthly,
+                fact_employee_monthly[employee_id],
+                fact_employee_monthly[employment_type]
+            ),
+            LOOKUPVALUE (
+                leave_entitlement[annual_entitlement_days],
+                leave_entitlement[leave_type], LeaveType,
+                leave_entitlement[employment_type], fact_employee_monthly[employment_type]
+            )
+        ),
+        REMOVEFILTERS ( dim_date ),
+        REMOVEFILTERS ( dim_leave_type ),
+        fact_employee_monthly[is_active] = TRUE (),
+        fact_employee_monthly[is_data_error] = FALSE (),
+        fact_employee_monthly[snapshot_date] = AsOf
+    )
+VAR Taken =
+    SUM ( fact_leave[days_taken] )
+RETURN
+    DIVIDE ( Taken, Entitled * YearFraction ) * 100
+
+// -----------------------------------------------------------------------------
+// Measure: Performance Rating Avg
+// Format: 0.00
+// Display folder: Performance
+// Mean annual rating (1 to 5) for the years present in the date selection.
+// There is no relationship to dim_date, so a Quarter slicer does not hide
+// the review. The Year slicer still applies, through TREATAS.
+// Department and employment type apply through their own relationships.
+// -----------------------------------------------------------------------------
+Performance Rating Avg =
+VAR YearsInContext =
+    VALUES ( dim_date[Year] )
+RETURN
+    CALCULATE (
+        AVERAGE ( fact_performance[rating] ),
+        TREATAS ( YearsInContext, fact_performance[review_year] )
+    )
+
+// -----------------------------------------------------------------------------
+// Measure: % Workforce at Each Job Level
+// Format: 0.00
+// Display folder: Workforce
+// Period-end headcount at this job level, divided by period-end headcount
+// across job levels, times 100. Organisation, department, date, and
+// employment type stay in context.
+// ALLEXCEPT keeps job_level_sort only so a visual on job_level_name (or on
+// job_level) does not also filter the denominator. Do not put job_level_sort
+// on a visual.
+// -----------------------------------------------------------------------------
+% Workforce at Each Job Level =
+DIVIDE (
+    [Active Headcount],
+    CALCULATE (
+        [Active Headcount],
+        ALLEXCEPT ( dim_job_level, dim_job_level[job_level_sort] )
+    )
+) * 100
+
+// -----------------------------------------------------------------------------
+// Measure: Employee Name
+// Format: text
+// Display folder: Workforce
+// Current roster name for the employee on a fact row. Blank for people who
+// have left, because dim_employee holds the current roster only.
+// No relationship is required.
+// -----------------------------------------------------------------------------
+Employee Name =
+VAR EmpId =
+    SELECTEDVALUE ( fact_employee_monthly[employee_id] )
+RETURN
+    LOOKUPVALUE (
+        dim_employee[Full Name],
+        dim_employee[employee_id], EmpId
+    )
+
+// ---------------------------------------------------------------------------
+// Measure: Department Headcount Rank
+// Visual filter: <= 10 for the Top 10 departments table.
+// ---------------------------------------------------------------------------
+Department Headcount Rank =
+RANKX (
+    ALLSELECTED ( dim_department[department_name] ),
+    [Active Headcount],
+    ,
+    DESC,
+    DENSE
+)
+
+// ---------------------------------------------------------------------------
+// Measure: Department Leave Days Rank
+// Visual filter: <= 10 for the Top 10 leave departments table.
+// ---------------------------------------------------------------------------
+Department Leave Days Rank =
+RANKX (
+    ALLSELECTED ( dim_department[department_name] ),
+    [Leave Days],
+    ,
+    DESC,
+    DENSE
+)
+
+// ---------------------------------------------------------------------------
+// Measure: Refresh Timestamp
+// Captured in UTC by the import-only refresh_metadata query at data refresh.
+// ---------------------------------------------------------------------------
+Refresh Timestamp =
+FORMAT (
+    MAX ( refresh_metadata[refresh_timestamp_utc] ),
+    "dd MMM yyyy HH:mm"
+) & " UTC"
+
+// ---------------------------------------------------------------------------
+// Measure: Selected Department / Selected Department Group
+// These fields expose only department context on the drill-through page.
+// ---------------------------------------------------------------------------
+Selected Department =
+SELECTEDVALUE ( dim_department[department_name], "Department detail" )
+
+Selected Department Group =
+SELECTEDVALUE ( dim_department[department_group], "Select a department" )

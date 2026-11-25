@@ -1,0 +1,137 @@
+table dim_employee
+	lineageTag: 921c5ef4-c60e-4b99-9979-08b4d13f2b02
+
+	column employee_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 56d870ee-103b-4abc-b52e-1f8bca6494ba
+		summarizeBy: sum
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d613a610-8033-4ce0-8900-16c88bde6e71
+		summarizeBy: none
+		sourceColumn: org_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_name
+		dataType: string
+		lineageTag: 2afb5d41-1c7b-4332-95d5-b6d186c7addf
+		summarizeBy: none
+		sourceColumn: first_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_name
+		dataType: string
+		lineageTag: 7274e5b6-6c7d-41f1-a239-e9948ef3bc2c
+		summarizeBy: none
+		sourceColumn: last_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column department_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 5315e7e4-db5e-4342-a4a8-cdd71b9477a7
+		summarizeBy: sum
+		sourceColumn: department_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_level
+		dataType: string
+		lineageTag: 8b3422b6-e3f0-4bfa-8cf4-c11ceac65a83
+		summarizeBy: none
+		sourceColumn: job_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		lineageTag: 45fb7edb-9e44-486b-bf49-8a58860c9ff8
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column hire_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5018348f-e113-4404-b74e-faa4d00253b1
+		summarizeBy: none
+		sourceColumn: hire_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Full Name'
+		dataType: string
+		lineageTag: 654b383d-87e5-4086-805a-466c75254137
+		summarizeBy: none
+		sourceColumn: Full Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_employee = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: dim_employee
+				// Current roster only. Fact history stays on fact_employee_monthly.
+				// Keep names here: a tenant HR user needs them, and RLS confines them to one org.
+				// =============================================================================
+				let
+				    Source = Database,
+				    Table = Source{[Schema = "hr", Item = "employees"]}[Data],
+				    Typed = Table.TransformColumnTypes(
+				        Table,
+				        {
+				            {"employee_sk", Int64.Type},
+				            {"employee_id", Int64.Type},
+				            {"org_id", Int64.Type},
+				            {"first_name", type text},
+				            {"last_name", type text},
+				            {"department_id", Int64.Type},
+				            {"job_level", type text},
+				            {"employment_type", type text},
+				            {"hire_date", type date},
+				            {"termination_date", type date},
+				            {"termination_reason", type text},
+				            {"effective_start", type date},
+				            {"effective_end", type date},
+				            {"is_current", type logical},
+				            {"is_active", type logical}
+				        }
+				    ),
+				    Current = Table.SelectRows(
+				        Typed,
+				        each [is_current] = true and [is_active] = true and [termination_date] = null
+				    ),
+				    Kept = Table.SelectColumns(
+				        Current,
+				        {
+				            "employee_id",
+				            "org_id",
+				            "first_name",
+				            "last_name",
+				            "department_id",
+				            "job_level",
+				            "employment_type",
+				            "hire_date"
+				        }
+				    ),
+				    WithName = Table.AddColumn(Kept, "Full Name", each [first_name] & " " & [last_name], type text)
+				in
+				    WithName
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

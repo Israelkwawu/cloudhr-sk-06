@@ -1,0 +1,143 @@
+table fact_leave
+	lineageTag: bf75a9bd-5d74-4bd1-9029-a81636e9a420
+
+	column leave_id
+		dataType: int64
+		formatString: 0
+		lineageTag: bfa2dd81-444a-465b-a936-37b2bbb236a6
+		summarizeBy: sum
+		sourceColumn: leave_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column employee_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 501599b9-299f-438e-a4cf-c912e88a87e0
+		summarizeBy: sum
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 4430222c-8075-4620-b3f2-d2122f7c9592
+		summarizeBy: none
+		sourceColumn: org_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column department_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e4b22cc-d07e-49a3-b961-fbb0122bfc8c
+		summarizeBy: sum
+		sourceColumn: department_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		lineageTag: 18d63046-4c6b-48ce-ab68-d50b1b893254
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column leave_type
+		dataType: string
+		lineageTag: c1b46734-6029-4a85-beed-a4f449116807
+		summarizeBy: none
+		sourceColumn: leave_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b328ea3b-44d4-4dbc-87ae-11de827859ee
+		summarizeBy: none
+		sourceColumn: start_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: bfbea688-f434-463b-b1f4-36d3ec19b139
+		summarizeBy: none
+		sourceColumn: end_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column days_taken
+		dataType: int64
+		formatString: 0
+		lineageTag: 4ee19b5f-4f4f-4b86-afce-65264042fedf
+		summarizeBy: sum
+		sourceColumn: days_taken
+
+		annotation SummarizationSetBy = Automatic
+
+	column approved_by
+		dataType: int64
+		formatString: 0
+		lineageTag: ccba4bcf-8308-40ec-8c6a-79c585483afd
+		summarizeBy: sum
+		sourceColumn: approved_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 400950a7-8f2f-4751-9f71-799b06efef3b
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_leave = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: fact_leave
+				// Days that cross a month boundary stay on the start date. Say so if you
+				// describe the monthly trend: it is days approved, booked to the start month.
+				// =============================================================================
+				let
+				    Source = Database,
+				    Table = Source{[Schema = "hr", Item = "leave_records"]}[Data],
+				    Typed = Table.TransformColumnTypes(
+				        Table,
+				        {
+				            {"leave_id", Int64.Type},
+				            {"employee_id", Int64.Type},
+				            {"org_id", Int64.Type},
+				            {"department_id", Int64.Type},
+				            {"employment_type", type text},
+				            {"leave_type", type text},
+				            {"start_date", type date},
+				            {"end_date", type date},
+				            {"days_taken", Int64.Type},
+				            {"approved_by", Int64.Type}
+				        }
+				    ),
+				    WithDateKey = Table.AddColumn(
+				        Typed,
+				        "DateKey",
+				        each Date.Year([start_date]) * 10000 + Date.Month([start_date]) * 100 + Date.Day([start_date]),
+				        Int64.Type
+				    )
+				in
+				    WithDateKey
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

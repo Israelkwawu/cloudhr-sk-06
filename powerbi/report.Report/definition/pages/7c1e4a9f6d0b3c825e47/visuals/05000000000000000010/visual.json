@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "05000000000000000010",
+  "position": {
+    "x": 616,
+    "y": 72,
+    "z": 1,
+    "height": 60,
+    "width": 320,
+    "tabOrder": 9
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Selected Department"
+                }
+              },
+              "queryRef": "_Measures.Selected Department",
+              "nativeQueryRef": "Selected Department"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

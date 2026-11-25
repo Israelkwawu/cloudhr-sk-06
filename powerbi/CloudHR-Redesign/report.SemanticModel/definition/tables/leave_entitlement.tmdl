@@ -1,0 +1,66 @@
+table leave_entitlement
+	isHidden
+	lineageTag: 4331c184-5e91-4f15-af64-fea7d7196e81
+
+	column leave_type
+		dataType: string
+		isHidden
+		lineageTag: 61fd3e28-3cf1-4fc4-b299-f664b9a2d326
+		summarizeBy: none
+		sourceColumn: leave_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		isHidden
+		lineageTag: c16ad399-65bd-475f-bf6b-e41fc1fdedff
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column annual_entitlement_days
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6102864e-3dbc-4a02-881c-257a7685cd9f
+		summarizeBy: sum
+		sourceColumn: annual_entitlement_days
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition leave_entitlement = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: leave_entitlement
+				// Disconnected lookup. The utilization measure reads it with LOOKUPVALUE.
+				// Do not relate it to the facts. Enable load, then hide the table.
+				// =============================================================================
+				let
+				    Source = Database,
+				    Table = Source{[Schema = "hr", Item = "leave_entitlement"]}[Data],
+				    Typed = Table.TransformColumnTypes(
+				        Table,
+				        {
+				            {"leave_type", type text},
+				            {"employment_type", type text},
+				            {"annual_entitlement_days", Int64.Type}
+				        }
+				    )
+				in
+				    Typed
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

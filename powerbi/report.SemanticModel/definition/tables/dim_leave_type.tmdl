@@ -1,0 +1,45 @@
+table dim_leave_type
+	lineageTag: 211f3fde-6821-482a-9a60-a159eafece7a
+
+	column leave_type
+		dataType: string
+		lineageTag: aeeaa0c9-c5e2-4b3a-8a41-9cbabddb170e
+		summarizeBy: none
+		sourceColumn: leave_type
+		sortByColumn: leave_type_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	column leave_type_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: 1749c61f-535a-46fc-b731-a2c8032df7a1
+		summarizeBy: sum
+		sourceColumn: leave_type_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_leave_type = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: dim_leave_type
+				// Sort leave_type by leave_type_sort, then hide the sort column.
+				// =============================================================================
+				let
+				    Source = #table(
+				        type table [leave_type = text, leave_type_sort = Int64.Type],
+				        {
+				            {"Annual", 1},
+				            {"Sick", 2},
+				            {"Parental", 3},
+				            {"Other", 4}
+				        }
+				    )
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

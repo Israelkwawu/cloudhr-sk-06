@@ -1,0 +1,23 @@
+// Role name: Tenant Access
+// Create one role. Paste the expression onto every table listed below.
+// The expression is the same. [org_id] means the org_id column of the table
+// you are pasting onto. Do not paste this onto security_mapping, dim_date,
+// dim_job_level, dim_employment_type, dim_leave_type, or leave_entitlement.
+//
+// Why it is repeated: a star schema does not filter one dimension from another.
+// A filter only on dim_organisation secures the facts, and leaves the employee
+// name list and the department slicer able to show other tenants.
+
+// dim_organisation
+// fact_employee_monthly
+// fact_leave
+// fact_performance
+// dim_department
+// dim_employee
+// salary_data_errors
+[org_id] =
+LOOKUPVALUE (
+    security_mapping[org_id],
+    security_mapping[user_email],
+    USERPRINCIPALNAME ()
+)

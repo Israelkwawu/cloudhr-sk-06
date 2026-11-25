@@ -1,0 +1,105 @@
+expression Server = "localhost:5435" meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=true]
+	lineageTag: 507b8df5-30c6-47f4-b693-e22adc208aa2
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression DatabaseName = "cloudhr" meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=true]
+	lineageTag: 34dc4403-caaa-4e9a-90b1-b4bc4cd10aca
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression Database =
+		// =============================================================================
+		// Query: Database
+		// Disable load
+		// =============================================================================
+		let
+		    Source = PostgreSQL.Database(Server, DatabaseName, [HierarchicalNavigation = false])
+		in
+		    Source
+	lineageTag: 94383409-fe15-4727-9d11-7f6903097902
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression stg_employee_monthly =
+		// =============================================================================
+		// Query: stg_employee_monthly
+		// Disable load. Downstream queries split the clean fact from the error log.
+		// Join the current employee version: hire and termination dates do not change
+		// across SCD versions, and the month-end job level and department are already
+		// on the snapshot. Joining every version would duplicate the fact.
+		// =============================================================================
+		let
+		    DatabaseNav = Database,
+		    Snapshots = DatabaseNav{[Schema = "hr", Item = "employee_monthly_snapshots"]}[Data],
+		    Employees = DatabaseNav{[Schema = "hr", Item = "employees"]}[Data],
+		    EmployeesTyped = Table.TransformColumnTypes(
+		        Employees,
+		        {
+		            {"employee_id", Int64.Type},
+		            {"hire_date", type date},
+		            {"termination_date", type date},
+		            {"termination_reason", type text},
+		            {"first_name", type text},
+		            {"last_name", type text},
+		            {"is_current", type logical}
+		        }
+		    ),
+		    Current = Table.Buffer(
+		        Table.SelectColumns(
+		            Table.SelectRows(EmployeesTyped, each [is_current] = true),
+		            {"employee_id", "hire_date", "termination_date", "termination_reason", "first_name", "last_name"}
+		        )
+		    ),
+		    SnapshotsTyped = Table.TransformColumnTypes(
+		        Snapshots,
+		        {
+		            {"snapshot_month", type date},
+		            {"employee_id", Int64.Type},
+		            {"org_id", Int64.Type},
+		            {"is_active", type logical},
+		            {"base_salary_usd", type number},
+		            {"job_level", type text},
+		            {"department_id", Int64.Type},
+		            {"employment_type", type text}
+		        }
+		    ),
+		    Joined = Table.NestedJoin(SnapshotsTyped, {"employee_id"}, Current, {"employee_id"}, "emp", JoinKind.LeftOuter),
+		    Expanded = Table.ExpandTableColumn(
+		        Joined,
+		        "emp",
+		        {"hire_date", "termination_date", "termination_reason", "first_name", "last_name"}
+		    ),
+		    // Names are not needed at monthly grain. The current roster keeps them.
+		    WithoutPII = Table.RemoveColumns(Expanded, {"first_name", "last_name"}),
+		    WithMonthEnd = Table.AddColumn(WithoutPII, "snapshot_date", each Date.EndOfMonth([snapshot_month]), type date),
+		    WithDateKey = Table.AddColumn(
+		        WithMonthEnd,
+		        "DateKey",
+		        each Date.Year([snapshot_date]) * 10000 + Date.Month([snapshot_date]) * 100 + Date.Day([snapshot_date]),
+		        Int64.Type
+		    ),
+		    // Use "= null", not "<> null". A comparison with null yields null, and a
+		    // null flag would drop every active employee out of the headcount measures.
+		    WithErrorFlag = Table.AddColumn(
+		        WithDateKey,
+		        "is_data_error",
+		        each
+		            if [hire_date] = null or [termination_date] = null then false
+		            else [hire_date] > [termination_date],
+		        type logical
+		    )
+		in
+		    WithErrorFlag
+	lineageTag: 18372bde-5633-417a-a8f2-a330cafeae5f
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

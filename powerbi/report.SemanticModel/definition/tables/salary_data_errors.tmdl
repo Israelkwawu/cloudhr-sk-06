@@ -1,0 +1,103 @@
+table salary_data_errors
+	isHidden
+	lineageTag: 30885b40-1cd6-4078-9d88-e0cab04a081d
+
+	column snapshot_month
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 17f053af-1ccb-4b18-913b-04aaeac71566
+		summarizeBy: none
+		sourceColumn: snapshot_month
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column employee_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5e26ae65-bf4e-41bf-b5b9-8d86b833522b
+		summarizeBy: sum
+		sourceColumn: employee_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4f050708-3073-4ae8-bb5b-a8a66710262d
+		summarizeBy: none
+		sourceColumn: org_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column base_salary_usd
+		dataType: double
+		isHidden
+		lineageTag: 4fedefbc-1433-4b04-8eb1-52e6bab7639b
+		summarizeBy: sum
+		sourceColumn: base_salary_usd
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column error_reason
+		dataType: string
+		isHidden
+		lineageTag: d39f5c0f-4ab7-4ff7-a441-e0f737e49b17
+		summarizeBy: none
+		sourceColumn: error_reason
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition salary_data_errors = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: salary_data_errors
+				// Enable load, then hide the table. Relate org_id to dim_organisation so RLS
+				// covers the log. Do not use this table on a report page.
+				// =============================================================================
+				let
+				    Source = stg_employee_monthly,
+				    Bad = Table.SelectRows(Source, each [base_salary_usd] <> null and [base_salary_usd] <= 0),
+				    Kept = Table.SelectColumns(Bad, {"snapshot_month", "employee_id", "org_id", "base_salary_usd"}),
+				    WithReason = Table.AddColumn(
+				        Kept,
+				        "error_reason",
+				        each if [base_salary_usd] = 0 then "Zero salary" else "Negative salary",
+				        type text
+				    ),
+				    Typed = Table.TransformColumnTypes(
+				        WithReason,
+				        {
+				            {"snapshot_month", type date},
+				            {"employee_id", Int64.Type},
+				            {"org_id", Int64.Type},
+				            {"base_salary_usd", type number},
+				            {"error_reason", type text}
+				        }
+				    )
+				in
+				    Typed
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

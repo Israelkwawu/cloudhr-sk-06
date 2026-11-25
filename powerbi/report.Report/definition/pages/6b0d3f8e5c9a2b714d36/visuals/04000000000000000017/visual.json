@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "04000000000000000017",
+  "position": {
+    "x": 648,
+    "y": 426,
+    "z": 1,
+    "height": 238,
+    "width": 608,
+    "tabOrder": 16
+  },
+  "visual": {
+    "visualType": "donutChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_leave_type"
+                    }
+                  },
+                  "Property": "leave_type"
+                }
+              },
+              "queryRef": "dim_leave_type.leave_type",
+              "nativeQueryRef": "leave_type",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Leave Days"
+                }
+              },
+              "queryRef": "_Measures.Leave Days",
+              "nativeQueryRef": "Leave Days"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

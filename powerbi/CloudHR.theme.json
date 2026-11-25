@@ -1,0 +1,71 @@
+{
+  "name": "CloudHR Enterprise",
+  "dataColors": [
+    "#17324D",
+    "#167D8D",
+    "#5B6FCB",
+    "#35A68A",
+    "#3979B8",
+    "#D99A32",
+    "#C45151",
+    "#8292A2"
+  ],
+  "foreground": "#263746",
+  "background": "#F4F7FA",
+  "tableAccent": "#167D8D",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [
+          {
+            "fontFace": "Segoe UI Semibold",
+            "fontColor": {
+              "solid": {
+                "color": "#263746"
+              }
+            },
+            "fontSize": 14
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#F4F7FA"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "outspace": [
+          {
+            "color": {
+              "solid": {
+                "color": "#F4F7FA"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          {
+            "color": {
+              "solid": {
+                "color": "#17324D"
+              }
+            },
+            "fontFace": "Segoe UI Semibold",
+            "fontSize": 32
+          }
+        ]
+      }
+    }
+  }
+}

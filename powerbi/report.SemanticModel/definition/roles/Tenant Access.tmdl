@@ -1,0 +1,22 @@
+/// Restricts organisation-scoped model tables to the signed-in user's mapped organisation.
+role 'Tenant Access'
+	modelPermission: read
+
+	tablePermission dim_organisation = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission fact_employee_monthly = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission fact_leave = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission fact_performance = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission dim_department = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission dim_employee = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission salary_data_errors = [org_id] = LOOKUPVALUE ( security_mapping[org_id], security_mapping[user_email], USERPRINCIPALNAME () )
+
+	tablePermission security_mapping = [user_email] = USERPRINCIPALNAME ()
+
+	annotation PBI_Id = 4f03a03c1fb847a2a3e84dbae96756f3
+

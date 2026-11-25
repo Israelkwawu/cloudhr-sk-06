@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "03000000000000000011",
+  "position": {
+    "x": 24,
+    "y": 174,
+    "z": 1,
+    "height": 210,
+    "width": 600,
+    "tabOrder": 10
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_job_level"
+                    }
+                  },
+                  "Property": "job_level_name"
+                }
+              },
+              "queryRef": "dim_job_level.job_level_name",
+              "nativeQueryRef": "job_level_name",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Avg Base Salary"
+                }
+              },
+              "queryRef": "_Measures.Avg Base Salary",
+              "nativeQueryRef": "Avg Base Salary"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+table dim_job_level
+	lineageTag: a21eed54-67d4-4411-9c99-21065457f147
+
+	column job_level
+		dataType: string
+		lineageTag: f7b5f779-be65-4d28-9601-4589613e38e7
+		summarizeBy: none
+		sourceColumn: job_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_level_name
+		dataType: string
+		lineageTag: 555c0ebb-812a-41e8-8b73-911e0fc12f27
+		summarizeBy: none
+		sourceColumn: job_level_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_level_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: f81c69fc-8250-43c4-ac69-b1ff2e7d7e18
+		summarizeBy: sum
+		sourceColumn: job_level_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_job_level = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: dim_job_level
+				// Sort job_level_name by job_level_sort, then hide job_level_sort.
+				// =============================================================================
+				let
+				    Source = #table(
+				        type table [job_level = text, job_level_name = text, job_level_sort = Int64.Type],
+				        {
+				            {"L1", "L1 Associate", 1},
+				            {"L2", "L2 Specialist", 2},
+				            {"L3", "L3 Senior", 3},
+				            {"L4", "L4 Manager", 4},
+				            {"L5", "L5 Director", 5},
+				            {"L6", "L6 Executive", 6}
+				        }
+				    )
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

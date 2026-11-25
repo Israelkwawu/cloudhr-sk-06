@@ -1,0 +1,201 @@
+org_id,org_name,industry,employee_count_band,country,subscription_tier
+1,Acme Labs,Technology,50-99,United States,Starter
+2,BrightPath Logistics,Logistics,50-99,United States,Starter
+3,Cedar Health,Healthcare,50-99,United States,Starter
+4,Copper Field Industries,Energy,50-99,United Kingdom,Growth
+5,Fairbank Park Co,Education,50-99,United Kingdom,Growth
+6,Highlane Bay Partners,Energy,50-99,Canada,Starter
+7,Meridian Point Co,Education,50-99,Netherlands,Starter
+8,Marlow Works Collective,Education,50-99,United States,Starter
+9,Redwood Bay Systems,Energy,50-99,United States,Starter
+10,Rivermark Vale Industries,Manufacturing,50-99,Canada,Starter
+11,Pinnacle Park Partners,Education,50-99,Ghana,Growth
+12,Lumen Park Collective,Technology,50-99,United States,Starter
+13,Summit Works Industries,Manufacturing,50-99,Canada,Starter
+14,Stonebridge Gate Partners,Logistics,50-99,Canada,Starter
+15,Northline Forge Systems,Education,50-99,United States,Starter
+16,Vantage Park Holdings,Energy,50-99,Canada,Growth
+17,Meridian Ridge Collective,Manufacturing,50-99,United States,Growth
+18,Fieldstone Hill Industries,Technology,50-99,United States,Starter
+19,Northline Shore Co,Logistics,50-99,Germany,Starter
+20,Meridian Ridge Co,Professional Services,50-99,United States,Starter
+21,Harbor Hill Partners,Logistics,50-99,United States,Starter
+22,Kindred Hill Co,Education,50-99,United States,Growth
+23,Summit Gate Co,Education,50-99,United States,Starter
+24,Cinder Works Systems,Hospitality,50-99,United Kingdom,Starter
+25,Redwood Line Co,Logistics,50-99,United States,Starter
+26,Meridian Bay Partners,Financial Services,50-99,United States,Growth
+27,Fairbank Hill Holdings,Logistics,50-99,United Kingdom,Starter
+28,Vantage Peak Partners,Retail,50-99,United States,Starter
+29,Highlane Field Industries,Financial Services,50-99,Kenya,Starter
+30,Highlane Line Partners,Manufacturing,50-99,United States,Growth
+31,Oakmont Park Systems,Retail,50-99,United Kingdom,Starter
+32,Silveroak Ridge Partners,Professional Services,50-99,United States,Starter
+33,Highlane Crest Systems,Manufacturing,50-99,United States,Starter
+34,Stonebridge Crest Partners,Technology,50-99,United States,Starter
+35,Copper Field Systems,Healthcare,50-99,United States,Starter
+36,Rivermark Ridge Partners,Logistics,50-99,United States,Starter
+37,Northline Bay Holdings,Retail,50-99,Australia,Starter
+38,Harbor Harbor Partners,Logistics,50-99,United States,Starter
+39,Westbrook Bay Group,Professional Services,50-99,United Kingdom,Starter
+40,Stonebridge Park Industries,Education,50-99,Canada,Growth
+41,Redwood Ridge Holdings,Logistics,50-99,Ireland,Starter
+42,Meridian Crest Group,Financial Services,50-99,United States,Starter
+43,Pinnacle Gate Systems,Professional Services,50-99,Ghana,Starter
+44,Highlane Peak Collective,Manufacturing,50-99,United States,Growth
+45,Lowell Field Systems,Healthcare,50-99,United States,Starter
+46,Vantage Hill Industries,Healthcare,50-99,United States,Starter
+47,Vantage Vale Systems,Education,50-99,United Kingdom,Starter
+48,Westbrook Peak Partners,Financial Services,50-99,United Kingdom,Starter
+49,Kindred Hill Industries,Energy,50-99,United States,Growth
+50,Lowell Gate Industries,Professional Services,50-99,Canada,Starter
+51,Lumen Gate Systems,Retail,50-99,Netherlands,Starter
+52,Redwood Hill Partners,Healthcare,50-99,South Africa,Starter
+53,Pinnacle Crest Group,Retail,50-99,Ghana,Starter
+54,Brightwater Peak Partners,Energy,50-99,United States,Starter
+55,Highlane Ridge Systems,Professional Services,50-99,India,Growth
+56,Fieldstone Vale Group,Healthcare,50-99,United States,Starter
+57,Rivermark Ridge Systems,Retail,50-99,Australia,Growth
+58,Copper Works Group,Financial Services,50-99,United States,Growth
+59,Northline Bay Co,Healthcare,50-99,United Kingdom,Starter
+60,Cinder Vale Collective,Manufacturing,50-99,United Kingdom,Starter
+61,Stonebridge Hill Industries,Financial Services,50-99,United States,Starter
+62,Summit Gate Collective,Energy,50-99,United States,Starter
+63,Highlane Bay Industries,Professional Services,50-99,United Kingdom,Starter
+64,Pinnacle Vale Industries,Manufacturing,50-99,South Africa,Starter
+65,Summit Peak Group,Energy,50-99,Australia,Growth
+66,Westbrook Hill Collective,Education,50-99,United States,Starter
+67,Meridian Gate Industries,Logistics,50-99,United States,Starter
+68,Stonebridge Field Holdings,Manufacturing,50-99,Australia,Starter
+69,Lumen Peak Holdings,Education,50-99,Canada,Starter
+70,Redwood Field Holdings,Financial Services,50-99,United States,Starter
+71,Oakmont Field Systems,Energy,50-99,United States,Starter
+72,Vantage Harbor Partners,Education,50-99,South Africa,Starter
+73,Brightwater Ridge Holdings,Manufacturing,50-99,United States,Starter
+74,Rivermark Hill Holdings,Logistics,50-99,Germany,Growth
+75,Northline Gate Collective,Hospitality,50-99,United States,Starter
+76,Stonebridge Works Holdings,Financial Services,50-99,United States,Starter
+77,Lumen Field Partners,Financial Services,50-99,South Africa,Starter
+78,Meridian Ridge Holdings,Energy,50-99,United States,Starter
+79,Rivermark Hill Partners,Retail,50-99,United States,Starter
+80,Westbrook Bay Co,Education,50-99,United States,Starter
+81,Silveroak Gate Group,Retail,50-99,Ireland,Starter
+82,Marlow Shore Collective,Professional Services,50-99,United States,Growth
+83,Lowell Point Holdings,Logistics,50-99,Kenya,Starter
+84,Redwood Vale Partners,Healthcare,50-99,Canada,Starter
+85,Fieldstone Line Industries,Hospitality,50-99,United States,Starter
+86,Marlow Park Systems,Technology,50-99,Kenya,Starter
+87,Halcyon Gate Industries,Manufacturing,50-99,India,Starter
+88,Fairbank Forge Industries,Education,50-99,India,Starter
+89,Summit Ridge Collective,Financial Services,50-99,United States,Starter
+90,Copper Hill Partners,Technology,50-99,United States,Starter
+91,Harbor Peak Industries,Healthcare,50-99,United Kingdom,Growth
+92,Summit Bay Industries,Education,50-99,Kenya,Starter
+93,Brightwater Point Holdings,Professional Services,50-99,Germany,Growth
+94,Lowell Peak Industries,Technology,50-99,United States,Starter
+95,Kindred Hill Systems,Technology,50-99,United States,Starter
+96,Cinder Line Group,Professional Services,50-99,Australia,Starter
+97,Alden Harbor Systems,Healthcare,50-99,Nigeria,Growth
+98,Marlow Park Industries,Professional Services,50-99,United States,Starter
+99,Northline Peak Holdings,Energy,50-99,United States,Growth
+100,Copper Works Systems,Energy,50-99,Kenya,Starter
+101,Vantage Field Group,Energy,50-99,Germany,Starter
+102,Cinder Gate Partners,Technology,50-99,United States,Starter
+103,Kindred Field Systems,Hospitality,50-99,United States,Growth
+104,Pinnacle Park Systems,Healthcare,50-99,Germany,Starter
+105,Harbor Works Collective,Healthcare,50-99,Kenya,Starter
+106,Westbrook Line Co,Professional Services,50-99,United States,Starter
+107,Northline Point Collective,Professional Services,50-99,United Kingdom,Starter
+108,Alden Hill Industries,Manufacturing,50-99,United States,Starter
+109,Westbrook Ridge Partners,Hospitality,50-99,United States,Starter
+110,Vantage Gate Collective,Energy,50-99,United States,Growth
+111,Meridian Point Partners,Financial Services,50-99,Germany,Starter
+112,Harbor Shore Collective,Technology,50-99,United States,Growth
+113,Lowell Shore Systems,Retail,50-99,Ghana,Growth
+114,Vantage Vale Co,Energy,50-99,Germany,Starter
+115,Redwood Bay Holdings,Education,50-99,United Kingdom,Starter
+116,Lowell Hill Collective,Education,50-99,Canada,Starter
+117,Kindred Peak Industries,Healthcare,50-99,United States,Starter
+118,Westbrook Bay Collective,Financial Services,50-99,Kenya,Starter
+119,Vantage Point Holdings,Energy,50-99,United States,Starter
+120,Summit Ridge Partners,Energy,50-99,United States,Growth
+121,Brightwater Peak Co,Financial Services,50-99,United States,Starter
+122,Northline Field Industries,Technology,50-99,United States,Growth
+123,Meridian Point Industries,Logistics,50-99,Australia,Starter
+124,Pinnacle Park Industries,Professional Services,50-99,Kenya,Starter
+125,Rivermark Point Partners,Technology,50-99,Nigeria,Starter
+126,Vantage Hill Holdings,Technology,50-99,Kenya,Starter
+127,Kindred Crest Group,Energy,50-99,United Kingdom,Growth
+128,Marlow Peak Systems,Hospitality,50-99,Australia,Starter
+129,Harbor Shore Industries,Logistics,50-99,United States,Starter
+130,Cinder Crest Co,Healthcare,50-99,Canada,Starter
+131,Summit Point Industries,Hospitality,100-249,Germany,Growth
+132,Vantage Ridge Collective,Retail,100-249,United States,Growth
+133,Fieldstone Park Holdings,Technology,100-249,United States,Starter
+134,Halcyon Forge Holdings,Hospitality,100-249,India,Growth
+135,Fairbank Peak Holdings,Education,100-249,Kenya,Growth
+136,Fairbank Line Collective,Financial Services,100-249,Germany,Growth
+137,Westbrook Crest Systems,Manufacturing,100-249,United States,Enterprise
+138,Brightwater Peak Group,Manufacturing,100-249,United States,Growth
+139,Marlow Park Group,Manufacturing,100-249,United States,Growth
+140,Westbrook Line Group,Retail,100-249,United States,Growth
+141,Marlow Bay Collective,Energy,100-249,United States,Growth
+142,Northline Works Group,Retail,100-249,Australia,Starter
+143,Vantage Forge Co,Retail,100-249,United Kingdom,Growth
+144,Vantage Harbor Holdings,Healthcare,100-249,United Kingdom,Growth
+145,Pinnacle Forge Group,Logistics,100-249,United States,Growth
+146,Summit Park Industries,Manufacturing,100-249,United Kingdom,Growth
+147,Oakmont Hill Co,Healthcare,100-249,Kenya,Growth
+148,Brightwater Line Group,Financial Services,100-249,United States,Enterprise
+149,Halcyon Field Holdings,Professional Services,100-249,Ireland,Growth
+150,Meridian Field Industries,Manufacturing,100-249,United States,Growth
+151,Summit Shore Partners,Technology,100-249,Germany,Growth
+152,Pinnacle Point Co,Financial Services,100-249,United States,Growth
+153,Stonebridge Bay Holdings,Logistics,100-249,India,Growth
+154,Alden Line Co,Technology,100-249,United States,Growth
+155,Marlow Line Systems,Retail,100-249,Germany,Growth
+156,Harbor Gate Collective,Professional Services,100-249,United Kingdom,Growth
+157,Cinder Bay Systems,Financial Services,100-249,United States,Growth
+158,Alden Ridge Systems,Hospitality,100-249,United States,Growth
+159,Halcyon Vale Systems,Healthcare,100-249,United States,Growth
+160,Summit Line Holdings,Healthcare,100-249,United Kingdom,Enterprise
+161,Redwood Harbor Co,Energy,100-249,United States,Enterprise
+162,Highlane Forge Collective,Logistics,100-249,United States,Enterprise
+163,Lumen Vale Systems,Technology,100-249,Netherlands,Enterprise
+164,Summit Hill Industries,Hospitality,100-249,United States,Growth
+165,Oakmont Shore Partners,Healthcare,100-249,Canada,Growth
+166,Harbor Shore Partners,Professional Services,100-249,India,Enterprise
+167,Fairbank Crest Partners,Energy,100-249,Ghana,Growth
+168,Redwood Bay Collective,Hospitality,100-249,India,Growth
+169,Lowell Hill Co,Hospitality,100-249,United Kingdom,Enterprise
+170,Marlow Line Co,Financial Services,100-249,United States,Growth
+171,Westbrook Peak Collective,Logistics,100-249,Ghana,Growth
+172,Fieldstone Shore Partners,Hospitality,100-249,Canada,Enterprise
+173,Kindred Harbor Partners,Healthcare,100-249,Germany,Growth
+174,Vantage Peak Group,Retail,100-249,United States,Growth
+175,Lowell Vale Holdings,Financial Services,100-249,United States,Growth
+176,Stonebridge Park Collective,Energy,100-249,Netherlands,Growth
+177,Copper Line Co,Education,100-249,United States,Enterprise
+178,Westbrook Works Holdings,Retail,100-249,Netherlands,Growth
+179,Summit Field Systems,Retail,100-249,United States,Enterprise
+180,Highlane Field Group,Energy,100-249,United Kingdom,Starter
+181,Oakmont Crest Co,Hospitality,250-499,United States,Starter
+182,Meridian Shore Partners,Manufacturing,250-499,United States,Growth
+183,Vantage Shore Collective,Healthcare,250-499,India,Growth
+184,Westbrook Harbor Partners,Manufacturing,250-499,Canada,Growth
+185,Halcyon Shore Group,Technology,250-499,United States,Starter
+186,Vantage Line Holdings,Logistics,250-499,Ghana,Growth
+187,Vantage Shore Industries,Manufacturing,250-499,United States,Growth
+188,Redwood Park Collective,Retail,250-499,United States,Growth
+189,Oakmont Harbor Industries,Hospitality,250-499,India,Enterprise
+190,Stonebridge Gate Group,Energy,250-499,United States,Growth
+191,Lowell Park Systems,Energy,250-499,United States,Growth
+192,Halcyon Peak Partners,Hospitality,250-499,United States,Starter
+193,Brightwater Gate Collective,Financial Services,250-499,United States,Growth
+194,Fieldstone Point Holdings,Professional Services,250-499,United States,Growth
+195,Summit Vale Group,Technology,250-499,United States,Starter
+196,Silveroak Shore Holdings,Hospitality,500-999,Canada,Enterprise
+197,Summit Harbor Systems,Technology,500-999,United States,Enterprise
+198,Meridian Peak Collective,Professional Services,500-999,Germany,Enterprise
+199,Oakmont Point Holdings,Financial Services,500-999,United Kingdom,Enterprise
+200,Cinder Vale Partners,Technology,1000-2499,Canada,Enterprise

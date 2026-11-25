@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "05000000000000000013",
+  "position": {
+    "x": 336,
+    "y": 148,
+    "z": 1,
+    "height": 80,
+    "width": 288,
+    "tabOrder": 12
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Turnover Rate"
+                }
+              },
+              "queryRef": "_Measures.Turnover Rate",
+              "nativeQueryRef": "Turnover Rate"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

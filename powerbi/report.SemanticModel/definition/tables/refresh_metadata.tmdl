@@ -1,0 +1,25 @@
+table refresh_metadata
+	lineageTag: 2310862b-8bcc-4f82-a190-f3834463d513
+
+	column refresh_timestamp_utc
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		lineageTag: 1cfc9450-1731-4a2d-b6f8-bb85cf7b7f5d
+		summarizeBy: none
+		sourceColumn: refresh_timestamp_utc
+
+		annotation SummarizationSetBy = Automatic
+
+	partition refresh_metadata = m
+		mode: import
+		source =
+				let
+				    TimestampUtc = DateTimeZone.RemoveZone(DateTimeZone.FixedUtcNow()),
+				    Source = #table(
+				        type table [refresh_timestamp_utc = datetime],
+				        {{TimestampUtc}}
+				    )
+				in
+				    Source
+

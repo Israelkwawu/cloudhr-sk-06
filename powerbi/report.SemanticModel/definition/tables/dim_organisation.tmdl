@@ -1,0 +1,79 @@
+table dim_organisation
+	lineageTag: 7fc446db-1dce-41ec-849c-9b65832d2e2b
+
+	column org_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3e4de8ac-42ff-49ba-84bb-c128d6c6929c
+		summarizeBy: none
+		sourceColumn: org_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_name
+		dataType: string
+		lineageTag: 8f9ac891-a2ea-42e9-b6a4-7b845fb49796
+		summarizeBy: none
+		sourceColumn: org_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column industry
+		dataType: string
+		lineageTag: 4388dbc8-dad3-4954-bea8-9b527e382daa
+		summarizeBy: none
+		sourceColumn: industry
+
+		annotation SummarizationSetBy = Automatic
+
+	column employee_count_band
+		dataType: string
+		lineageTag: 1ddf8ead-33f5-415a-a0f0-93f27a80ebcd
+		summarizeBy: none
+		sourceColumn: employee_count_band
+
+		annotation SummarizationSetBy = Automatic
+
+	column country
+		dataType: string
+		lineageTag: 3bd953d6-77f3-4ace-895a-6b12418dd2a3
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_tier
+		dataType: string
+		lineageTag: 8b1f8318-e248-46fd-b52d-c4982997d4b5
+		summarizeBy: none
+		sourceColumn: subscription_tier
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_organisation = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: dim_organisation
+				// =============================================================================
+				let
+				    Source = Database,
+				    Table = Source{[Schema = "hr", Item = "organisations"]}[Data],
+				    Typed = Table.TransformColumnTypes(
+				        Table,
+				        {
+				            {"org_id", Int64.Type},
+				            {"org_name", type text},
+				            {"industry", type text},
+				            {"employee_count_band", type text},
+				            {"country", type text},
+				            {"subscription_tier", type text}
+				        }
+				    )
+				in
+				    Typed
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

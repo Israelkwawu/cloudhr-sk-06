@@ -1,0 +1,106 @@
+table fact_performance
+	lineageTag: ecadd891-2a2d-4ded-a4f4-ae08e537950d
+
+	column review_id
+		dataType: int64
+		formatString: 0
+		lineageTag: abfc05c6-6522-4170-b17c-2074bc292b63
+		summarizeBy: sum
+		sourceColumn: review_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column employee_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6012e2a4-afab-448b-95d1-add938c91b51
+		summarizeBy: sum
+		sourceColumn: employee_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column org_id
+		dataType: int64
+		formatString: 0
+		lineageTag: fead5e44-c9b2-42c0-b849-54a3b098c936
+		summarizeBy: none
+		sourceColumn: org_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column department_id
+		dataType: int64
+		formatString: 0
+		lineageTag: c34a76a8-8320-43e9-b85c-9418f5d1a2f8
+		summarizeBy: sum
+		sourceColumn: department_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		lineageTag: 61a2d2b6-4562-4ce9-ba9a-67ea90ff9e2d
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 6f340553-1a86-46c2-84d9-c2370724396a
+		summarizeBy: sum
+		sourceColumn: review_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 4a10943f-2c54-4263-ba04-8d80d105d35f
+		summarizeBy: sum
+		sourceColumn: rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column reviewer_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 7893495e-1607-47c3-a0c8-8be81945d282
+		summarizeBy: sum
+		sourceColumn: reviewer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_performance = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: fact_performance
+				// Do not relate this table to dim_date. A review is an annual event; the
+				// Performance Rating Avg measure filters review_year from dim_date[Year].
+				// A relationship on 1 January would make the Quarter slicer hide the review.
+				// =============================================================================
+				let
+				    Source = Database,
+				    Table = Source{[Schema = "hr", Item = "performance_reviews"]}[Data],
+				    Typed = Table.TransformColumnTypes(
+				        Table,
+				        {
+				            {"review_id", Int64.Type},
+				            {"employee_id", Int64.Type},
+				            {"org_id", Int64.Type},
+				            {"department_id", Int64.Type},
+				            {"employment_type", type text},
+				            {"review_year", Int64.Type},
+				            {"rating", Int64.Type},
+				            {"reviewer_id", Int64.Type}
+				        }
+				    )
+				in
+				    Typed
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

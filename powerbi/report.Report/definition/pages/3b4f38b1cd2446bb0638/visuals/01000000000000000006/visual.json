@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "01000000000000000006",
+  "position": {
+    "x": 912,
+    "y": 72,
+    "z": 0,
+    "height": 60,
+    "width": 344,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_employment_type"
+                    }
+                  },
+                  "Property": "employment_type"
+                }
+              },
+              "queryRef": "dim_employment_type.employment_type",
+              "nativeQueryRef": "employment_type",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

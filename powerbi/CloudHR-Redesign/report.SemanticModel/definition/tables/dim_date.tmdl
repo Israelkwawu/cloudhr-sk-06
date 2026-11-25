@@ -1,0 +1,237 @@
+table dim_date
+	lineageTag: a1b13307-95b6-42db-934c-6a03b9d8acf6
+
+	measure _Measure
+		lineageTag: 4bfa8098-8be1-4f1b-bf33-4624b3c2886a
+
+	column DateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 7a3b5b04-72e8-4019-bfbe-55396d7729c8
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: cd002d33-e201-443e-ae41-e38301fe1703
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 43654fe4-9584-4608-bce2-8e0419867c7a
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: e79cf9bf-a7a1-4d12-8742-8f7b3004d3a2
+		summarizeBy: sum
+		sourceColumn: Month Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		dataType: string
+		lineageTag: 1bc5e61d-4ead-4261-8b8d-df62c8121906
+		summarizeBy: none
+		sourceColumn: Month Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: f01af163-736c-4121-a4a9-6da8a1ea0bb9
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7899bb25-a786-4e74-bd3b-dd78c279a405
+		summarizeBy: sum
+		sourceColumn: Quarter Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		dataType: string
+		lineageTag: 4b2fe523-4b47-4250-8bef-35bbd79ec078
+		summarizeBy: none
+		sourceColumn: Day of Week
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: e5dde9e3-faa8-4c56-8e06-86de71d6e59c
+		summarizeBy: sum
+		sourceColumn: Day of Week Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Weekend'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: edbcf077-3cc5-41d7-bc7c-abf1f9d03c9c
+		summarizeBy: none
+		sourceColumn: Is Weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Holiday'
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 4d862a58-0f9f-4efc-843d-6be0d9a309ac
+		summarizeBy: none
+		sourceColumn: Is Holiday
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ef3e692-e77d-43a6-ad69-bf8e5710ce62
+		summarizeBy: sum
+		sourceColumn: Week Number
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: import
+		source =
+				// =============================================================================
+				// Query: dim_date
+				// Calendar year, 1 January through 31 December.
+				// The table starts in 2023 so SAMEPERIODLASTYEAR has a prior year to land on.
+				// Facts start in January 2024, so 2024 year-on-year growth is blank on purpose.
+				//
+				// Sort by column (Model view, after this query is loaded):
+				//   Month Name  -> Month Number
+				//   Day of Week -> Day of Week Number
+				//   Quarter     -> Quarter Number
+				// Mark as date table on the Date column.
+				// Is Holiday is US federal, observed (Saturday -> Friday, Sunday -> Monday).
+				// =============================================================================
+				let
+				    StartDate = #date(2023, 1, 1),
+				    EndDate = #date(2026, 12, 31),
+				    Observe = (d as date) as date =>
+				        let
+				            dow = Date.DayOfWeek(d, Day.Monday)
+				        in
+				            if dow = 5 then Date.AddDays(d, -1)
+				            else if dow = 6 then Date.AddDays(d, 1)
+				            else d,
+				    NthWeekday = (year as number, month as number, weekday as number, n as number) as date =>
+				        let
+				            first = #date(year, month, 1),
+				            offset = Number.Mod(weekday - Date.DayOfWeek(first, Day.Monday) + 7, 7)
+				        in
+				            Date.AddDays(first, offset + (n - 1) * 7),
+				    LastWeekday = (year as number, month as number, weekday as number) as date =>
+				        let
+				            last = Date.EndOfMonth(#date(year, month, 1)),
+				            delta = Number.Mod(Date.DayOfWeek(last, Day.Monday) - weekday + 7, 7)
+				        in
+				            Date.AddDays(last, -delta),
+				    HolidaysForYear = (year as number) as list =>
+				        {
+				            Observe(#date(year, 1, 1)),
+				            NthWeekday(year, 1, 0, 3),
+				            NthWeekday(year, 2, 0, 3),
+				            LastWeekday(year, 5, 0),
+				            Observe(#date(year, 6, 19)),
+				            Observe(#date(year, 7, 4)),
+				            NthWeekday(year, 9, 0, 1),
+				            NthWeekday(year, 10, 0, 2),
+				            Observe(#date(year, 11, 11)),
+				            NthWeekday(year, 11, 3, 4),
+				            Observe(#date(year, 12, 25))
+				        },
+				    HolidayDates = List.Buffer(
+				        List.Distinct(List.Combine(List.Transform({2023, 2024, 2025, 2026}, each HolidaysForYear(_))))
+				    ),
+				    MonthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
+				    DayNames = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
+				    DayCount = Duration.Days(EndDate - StartDate) + 1,
+				    DateList = List.Dates(StartDate, DayCount, #duration(1, 0, 0, 0)),
+				    ToKey = (d as date) as number => Date.Year(d) * 10000 + Date.Month(d) * 100 + Date.Day(d),
+				    Rows = List.Transform(
+				        DateList,
+				        each
+				            let
+				                d = _,
+				                dow = Date.DayOfWeek(d, Day.Monday),
+				                quarterNumber = Date.QuarterOfYear(d)
+				            in
+				                {
+				                    ToKey(d),
+				                    d,
+				                    Date.Year(d),
+				                    Date.Month(d),
+				                    MonthNames{Date.Month(d) - 1},
+				                    "Q" & Text.From(quarterNumber),
+				                    quarterNumber,
+				                    DayNames{dow},
+				                    dow + 1,
+				                    dow >= 5,
+				                    List.Contains(HolidayDates, d),
+				                    Date.WeekOfYear(d, Day.Monday)
+				                }
+				    ),
+				    AsTable = Table.FromRows(
+				        Rows,
+				        {
+				            "DateKey",
+				            "Date",
+				            "Year",
+				            "Month Number",
+				            "Month Name",
+				            "Quarter",
+				            "Quarter Number",
+				            "Day of Week",
+				            "Day of Week Number",
+				            "Is Weekend",
+				            "Is Holiday",
+				            "Week Number"
+				        }
+				    ),
+				    Typed = Table.TransformColumnTypes(
+				        AsTable,
+				        {
+				            {"DateKey", Int64.Type},
+				            {"Date", type date},
+				            {"Year", Int64.Type},
+				            {"Month Number", Int64.Type},
+				            {"Month Name", type text},
+				            {"Quarter", type text},
+				            {"Quarter Number", Int64.Type},
+				            {"Day of Week", type text},
+				            {"Day of Week Number", Int64.Type},
+				            {"Is Weekend", type logical},
+				            {"Is Holiday", type logical},
+				            {"Week Number", Int64.Type}
+				        }
+				    )
+				in
+				    Typed
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

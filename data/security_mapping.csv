@@ -1,0 +1,5 @@
+user_email,org_id,access_level
+ada.mensah@acme-labs.example,1,HR_ADMIN
+ben.owusu@brightpath.example,2,HR_VIEWER
+cara.boateng@cedarhealth.example,3,HR_VIEWER
+dana.asante@acme-labs.example,1,HR_VIEWER
