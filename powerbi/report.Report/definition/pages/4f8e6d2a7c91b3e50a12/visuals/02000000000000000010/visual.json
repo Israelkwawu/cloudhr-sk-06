@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "02000000000000000010",
   "position": {
     "x": 24,
@@ -19,15 +19,14 @@
               {
                 "textRuns": [
                   {
-                    "value": "Headcount by department group and job level",
+                    "value": "Headcount mix by department group and job level",
                     "textStyle": {
                       "fontFamily": "Segoe UI Semibold",
                       "fontSize": "15px",
                       "color": "#263746"
                     }
                   }
-                ],
-                "horizontalTextAlignment": "left"
+                ]
               }
             ]
           }

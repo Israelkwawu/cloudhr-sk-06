@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "05000000000000000021",
   "position": {
     "x": 24,
@@ -10,7 +10,7 @@
     "tabOrder": 20
   },
   "visual": {
-    "visualType": "stackedBarChart",
+    "visualType": "hundredPercentStackedBarChart",
     "query": {
       "queryState": {
         "Category": {
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dim_department.department_name",
-              "nativeQueryRef": "department_name"
+              "nativeQueryRef": "department_name",
+              "active": true
             }
           ]
         },
